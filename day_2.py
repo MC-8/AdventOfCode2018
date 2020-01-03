@@ -10,6 +10,7 @@ for S in open('2.in','r').readlines():
             threes+=1
             break
 print(f"Solution part 1 = {twos*threes}")
+
 done = False
 sol = ''
 for S in open('2.in','r').readlines():
@@ -23,6 +24,8 @@ for S in open('2.in','r').readlines():
         if count==1:
             sol = S[:isol]+S[isol+1:]
             assert (sol == K[:isol]+K[isol+1:])
+            done = True
+            break
     if done:
         break
 print(f"Solution part 2 = {sol}")
