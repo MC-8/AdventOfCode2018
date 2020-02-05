@@ -129,4 +129,21 @@ for y in range(ymin, ymax+1):
         pass
 
 for k in area_counter:
-    print(f"{k=},{area_counter[k]=}")
+    print(f"{k=},{area_counter[k]=}") # Solution is 3251
+
+# Part 2
+xmin, ymin = 0, 0
+xmax, ymax = 400, 400
+origins = []
+for l in open('6.in2','r').readlines():
+    origins.append(tuple([int(x) for x in l.split(',')]))
+
+regionsize = 0
+for x,y in product(range(xmin, xmax), range(ymin, ymax)):
+    dist = 0
+    for o in origins:
+        dist += abs(x-o[0]) + abs(y-o[1])
+    if dist < 10000:
+        regionsize += 1
+
+print(f"{regionsize=}") # 47841 :)
