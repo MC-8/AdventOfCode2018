@@ -75,4 +75,5 @@ while True:
     owned.add(next_step)
 
     
-print(len(sol_order))
+
+# Part 2
