@@ -1,5 +1,5 @@
 import re
-
+from collections import defaultdict
 class TreeNode(object):
 
     def __init__(self, value, parents = []) -> None:
@@ -15,17 +15,37 @@ class TreeNode(object):
 
 
 pairs = []
-P2C = {}
-C2P = {}
+P2C = defaultdict(list)
+C2P = defaultdict(int)
 for l in open('7.in2','r').readlines():
     pair = (re.search(r'Step (.) must be finished before step (.)', l).group(1),
             re.search(r'Step (.) must be finished before step (.)', l).group(2))
     #print(pair)
-    P2C[pair[0]] = P2C.get(pair[0],[])
     P2C[pair[0]].append(pair[1])
-    C2P[pair[1]] = C2P.get(pair[1],[])
-    C2P[pair[1]].append(pair[0])
+    C2P[pair[1]] += 1
     pairs.append(pair)
+
+Q = []
+for k in P2C:
+    if C2P[k] == 0:
+        Q.append(k)
+
+print(Q)
+
+sol = ''
+
+while Q:
+    x = sorted(Q)[0]
+    sol += x
+    Q.remove(x)
+    for y in P2C[x]:
+        C2P[y] -= 1
+        if C2P[y]==0:
+            Q.append(y)
+
+print(sol)
+
+
 
 # print(P2C)
 # print(C2P)
