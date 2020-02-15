@@ -1,74 +1,149 @@
-from itertools import product
 from collections import deque, namedtuple
+from itertools import product
+grid = []
+for l in open('6.in','r').readlines():
+    grid.append(l.strip())
+    # Use example but the input will be different
+xlim, ylim = len(grid), len(grid[0])    
+print(grid)
 
-LS = set()
-for s in open('6.in', 'r').readlines():
-    LS.add(tuple(int(x) for x in s.strip().split(',')))
+state = namedtuple('state', 'origin coord dist')
 
-def getManhattanDistance(p1:tuple, p2:tuple) -> int:
-    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+Q = deque()
+allstate = {}
+have_been = set()
 
-D_closest_to = {}
-to_remove = set()
-for x,y in product(range(-220, 550), range(-220, 550)):
-    for s in LS:
-        if D_closest_to.get((x,y),(None, 1e6))[1] == getManhattanDistance((x,y), s):
-            to_remove.add((x,y))
-        elif D_closest_to.get((x,y),(None, 1e6))[1] > getManhattanDistance((x,y), s):
-            D_closest_to[(x,y)] = (s, getManhattanDistance((x,y), s))
+# Add initial states
+for x,y in product(range(xlim), range(ylim)):
+    if (origin:=grid[x][y]) in ['A','B','C','D','E','F']:
+        s = state(origin = origin, coord= (x,y), dist=0)
+        Q.append(s)
+        allstate[(x,y)] = (origin, 0)
+        have_been.add((origin,x,y))
 
-# print(D_closest_to)
-Dunique = {}
-for k in D_closest_to:
-    v = D_closest_to[k]
-    if k not in to_remove:
-        Dunique[v[0]] = Dunique.get(v[0],0)+1
+counter = 0
+while Q:
+    s = Q.popleft()
+    x,y = s.coord
+    counter += 1
+    if counter%10000 == 0:
+        print(len(Q))
+    for dx,dy in ((-1,0),(1,0),(0,-1),(0,1)):
+        if xlim>(new_x:=x+dx)>=0 and ylim>(new_y:=y+dy)>=0 and ((s.origin,new_x,new_y) not in have_been):
 
-print(Dunique)
-# # State = namedtuple('State', 'point source distance')
+            olds = allstate.get((new_x,new_y), ((-1,-1), float('inf')))
+            
+            if (new_dist := s.dist+1) < olds[1]:
+                allstate[(new_x,new_y)] = (s.origin, new_dist)
+                #grid[new_x][new_y] = s.origin
+            elif (new_dist := s.dist+1) == olds[1] and s.origin != olds[0]:
+                allstate[(new_x,new_y)] = ('x', new_dist)
+                #grid[new_x][new_y] = 'x'
+            have_been.add((s.origin,new_x,new_y))
+            Q.append(state(origin=s.origin, coord=(new_x,new_y),dist=s.dist+1))
 
-# # Q = deque()
-# # Dvisited = {} 
-# # Dunique = {}
-# # def up(p): return (p[0],p[1]-1)
-# # def down(p): return (p[0],p[1]+1)
-# # def left(p): return (p[0]-1,p[1])
-# # def right(p): return (p[0]+1,p[1])
+d_counter = 0
+e_counter = 0
+for x in allstate:
+    if allstate[x][0] == 'D': d_counter +=1
+    if allstate[x][0] == 'E': e_counter +=1
 
-# # for s in LS:
-# #     Q.append(State(up(s),   s, 1))
-# #     Q.append(State(down(s), s, 1))
-# #     Q.append(State(left(s), s, 1))
-# #     Q.append(State(right(s),s, 1))
-
-# # while Q:
-# #     state = Q.popleft()
-# #     sp = state.point
-# #     if (sp, state.source) in Dvisited: continue
-# #     if (sp, state.source) not in Dvisited and sp not in LS and state.distance < 210:
-# #         Dvisited[(sp, state.source)] = state.distance
-# #         Dunique[sp] = (state.source, state.distance)
-# #     elif sp in Dunique and state.distance < Dunique[sp][1]:
-# #         Dvisited[(sp, state.source)] = state.distance
-# #         Dunique[sp] = (state.source, state.distance)
-# #     elif sp in Dunique and state.distance == Dunique[sp][1] and Dunique[sp][0] != state.source:
-# #         try:
-# #             del Dunique[sp]
-# #         except KeyError:
-# #             pass
-# #     else:
-# #         continue
-# #     Q.append(State(up(sp),   state.source, state.distance + 1))
-# #     Q.append(State(down(sp), state.source, state.distance + 1))
-# #     Q.append(State(left(sp), state.source, state.distance + 1))
-# #     Q.append(State(right(sp),state.source, state.distance + 1))
-# # Dcount = {}
-
-# # #print(Dunique)
-# # for el in Dunique:
-# #     Dcount[Dunique[el][0]] = Dcount.get(Dunique[el][0],0)+1
-# # print(Dcount)
-        
+print(f"{d_counter=}")
+print(f"{e_counter=}")
 
 
+xmin, ymin = -1, -1
+xmax, ymax = 400, 400
 
+#     # Use example but the input will be different
+# xlim, ylim = len(grid), len(grid[0])    
+# print(grid)
+
+state = namedtuple('state', 'origin coord dist')
+
+Q = deque()
+allstate = {}
+have_been = set()
+
+
+# Add initial states
+for l in open('6.in2','r').readlines():
+    origin = tuple([int(x) for x in l.split(',')])
+    s = state(origin = origin, coord= origin, dist=0)
+    Q.append(s)
+    allstate[origin] = (origin, 0)
+    have_been.add((origin,origin[0],origin[1]))
+
+counter = 0
+while Q:
+    s = Q.popleft()
+    x,y = s.coord
+    counter += 1
+    if counter%10000 == 0:
+        print(len(Q))
+    for dx,dy in ((-1,0),(1,0),(0,-1),(0,1)):
+        if xmax>(new_x:=x+dx)>=xmin and ymax>(new_y:=y+dy)>=ymin and ((s.origin,new_x,new_y) not in have_been):
+
+            olds = allstate.get((new_x,new_y), ((-1,-1), float('inf')))
+            
+            if (new_dist := s.dist+1) < olds[1]:
+                allstate[(new_x,new_y)] = (s.origin, new_dist)
+                #grid[new_x][new_y] = s.origin
+            elif (new_dist := s.dist+1) == olds[1] and s.origin != olds[0]:
+                allstate[(new_x,new_y)] = ('x', new_dist)
+                #grid[new_x][new_y] = 'x'
+            have_been.add((s.origin,new_x,new_y))
+            Q.append(state(origin=s.origin, coord=(new_x,new_y),dist=s.dist+1))
+
+d_counter = 0
+e_counter = 0
+area_counter = {}
+for x in allstate:
+    area_counter[allstate[x][0]] = area_counter.get(allstate[x][0],0) + 1
+
+for k in area_counter:
+    print(f"{k=},{area_counter[k]=}")
+
+
+print("---------------")
+# Remove keys that are in the borders (means their area is infinite)
+for x in range(xmin, xmax+1):
+    try:
+        area_counter.pop(allstate[(x,0)][0])
+    except KeyError:
+        pass
+    try:
+        area_counter.pop(allstate[(x,ymax-1)][0])
+    except KeyError:
+        pass
+
+
+for y in range(ymin, ymax+1):
+    try:
+        area_counter.pop(allstate[(0,y)][0])
+    except KeyError:
+        pass
+    try:
+        area_counter.pop(allstate[(xmax-1,y)][0])
+    except KeyError:
+        pass
+
+for k in area_counter:
+    print(f"{k=},{area_counter[k]=}") # Solution is 3251
+
+# Part 2
+xmin, ymin = 0, 0
+xmax, ymax = 400, 400
+origins = []
+for l in open('6.in2','r').readlines():
+    origins.append(tuple([int(x) for x in l.split(',')]))
+
+regionsize = 0
+for x,y in product(range(xmin, xmax), range(ymin, ymax)):
+    dist = 0
+    for o in origins:
+        dist += abs(x-o[0]) + abs(y-o[1])
+    if dist < 10000:
+        regionsize += 1
+
+print(f"{regionsize=}") # 47841 :)
